@@ -138,9 +138,10 @@ class SyllabusLatexUAM(SyllabusPublisherPort):
         print(f"Syllabus UAM guardado en: {path}")
     
     def _preamble(self) -> None:
-        self.doc.packages.append(NoEscape(r"\usepackage{../../../lib/latex/uea_planeacion}"))
-        self.doc.packages.append(Package("../../../lib/latex/common"))
-
+        if ('latex' in self.cfg) and ("extra_packages" in self.cfg.latex):
+            for pkg in self.cfg.latex.extra_packages:
+                self.doc.packages.append(NoEscape(rf"\usepackage{{{pkg}}}"))
+        
         self.doc.packages.append(Package(
             "biblatex",
             options=[
@@ -177,11 +178,11 @@ rf"""
     def _generalidades(self) -> None:
         self.doc.append(Section("Generalidades"))
         self.doc.append(Subsection("Datos del profesor", numbering=False))
-
+        
         with self.doc.create(Tabular(r"l p{0.6\textwidth}")) as t:
-            t.add_row((NoEscape(r"\textbf{Profesor:}"),   "Dr. en C. Omar Piña Ramírez"))
-            t.add_row((NoEscape(r"\textbf{email:}"),      NoEscape(r"\url{opina.ramirez@izt.uam.mx}")))
-            t.add_row((NoEscape(r"\textbf{Cubículo:}"),   "T-227"))
+            t.add_row((NoEscape(r"\textbf{Nombre:}"),   self.cfg.docente))
+            t.add_row((NoEscape(r"\textbf{email:}"),      NoEscape(rf"\url{{{self.cfg.email}}}")))
+            t.add_row((NoEscape(r"\textbf{Cubículo:}"),   self.cfg.cubiculo))
     
     def _sesiones(self) -> None:
         self.doc.append(Section("Sesiones"))

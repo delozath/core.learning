@@ -6,8 +6,14 @@ defaults:
 
 docente: Dr. en C. Omar Piña Ramírez
 email: opina.ramirez@izt.uam.mx
+cubiculo: T-227
 task: syllabus
 
+
+latex:
+  extra_packages: #pass # si no se requieren paquetes personalizados, dejar como pass
+      - ../../../lib/uam/uea_planeacion
+      - ../../../lib/uam/common
 
 constantes:
   path:

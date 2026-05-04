@@ -2,35 +2,35 @@ information:
   short_name: symp
   name: Secuenciadores y Microprocesadores
   clave: 2151024
-  trimestre: 26-I
+  trimestre: 26-P
   aula_virtual: pass
   grupo: CH51
   tipo: Ingeniería Biomédica
   doc_elab:
     dia: lunes
-    dia_num: 19
-    mes: enero
+    dia_num: 4
+    mes: mayo
 
 calendario:
-  uam_offset: 3 # Semanas de diferencia con el calendario nominal y el de la UAM
-  inicio: 2026.01.19
-  fin: 2026.04.15
+  uam_offset: 18 # Semanas de diferencia con el calendario nominal y el de la UAM
+  inicio: 2026.05.06
+  fin: 2026.07.29
 
   sesiones: # Cada linea representa un dia de la semana, iniciando en lunes
     - teoria:
         name: Teoría
         dias:
-          - AT107
+          - B205
+          - B205
           - 0
-          - AT107
           - 0
-          - AT107
+          - B205
     - lab:
         name: Laboratorio
         dias:
           - 0
-          - AT109
           - 0
+          - AT109
           - 0
           - 0
   
@@ -38,16 +38,12 @@ calendario:
     - feriado:
         name: Días festivos
         fechas:
-          - 2026.02.05
-          - 2026.03.04
-          - 2026.04.02
-          - 2026.04.03     
+          - 2026.05.15    
     - examen:
         name: Exámenes
         fechas:
-          - 2026.02.09
-          - 2026.03.13
-          - 2026.04.06
+          - 2026.06.05
+          - 2026.07.21
 
 data:
   sqlite: # temario, calificaciones, estudiantes, ponderaciones
@@ -83,5 +79,4 @@ data:
     
     queries:
       temario: "temario"
-      
 

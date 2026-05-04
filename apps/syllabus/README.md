@@ -1,112 +1,152 @@
-# Generador de Syllabus y Gestión Programática de Cursos
+# Syllabus
 
-Esta aplicación que proporciona una API para la gestión de syllabus de cursos y la generación de documentos relacionados. Tiene dos implementaciones para la gestión de datos, una que utiliza una base de datos SQLite para almacenar la información del curso y otra con archivos CSV.  Ofrece funcionalidades para exportar syllabus en formato LaTeX y generar calificaciones en formato CSV.
+Aplicación CLI para generar syllabus de cursos a partir de configuración YAML administrada con Hydra. El flujo actual está orientado a la UAM-I y soporta dos fuentes de datos para el temario: SQLite y CSV. La salida principal es un archivo `.tex` listo para compilar.
 
-Originalmente esta serie de scripts estaban diseñados para propositos personales en la gestión de cursos en la Universidad Autónoma de Metropolitana Unidad Iztapalapa (UAM-I), en la UEA que he impartido. Cada trimestre he ido mejorando y adaptando los scripts para automatizar la generación de syllabus y la gestión de calificaciones. Aprovechando lo que recién aprendí al desarrollar una API para un proyecto de *Machine Learning en Aplicaciones Médicas*, decidí migrar el sistema de gestión de syllabus a una arquitectura arquitectura hexagonal con *entry points* en CLI gestionados con Hydra, permitiendo una mayor modularidad y escalabilidad.
+El proyecto fue migrado a una arquitectura más modular con puertos y adaptadores para separar:
 
-Actualmente la App genera los archivos de LaTeX hard-coded, y usando *Jinja2* para generar partes complejas como cuadros y listas de temas. Creo que la nueva arquitectura permitirá implementarlo de forma más óptima en el futuro.
+- configuración del curso e institución,
+- acceso a datos,
+- orquestación de tareas,
+- publicación del documento final.
 
-Espero que les sea de utilidad y sus comentarios/retroalimentación. Saludos
+## Estado actual
 
-Omar Piña Ramírez
-delozath@gmail.com
-2026.01.18
+Implementado:
 
-## Features
-**Implementados**
-- Crear y gestionar syllabus de cursos
-- Endpoints API para la recuperación y actualización de syllabus
-- Cargar datos desde una base de datos SQLite
-- Cargar datos desde archivos CSV
-- Exportar syllabus en formato LaTeX
+- Generación de syllabus en LaTeX desde CLI.
+- Resolución de configuración por institución y curso con Hydra.
+- Lectura de temario desde `sqlite` o `csv`.
+- Render de secciones complejas con Jinja2.
+- Personalización del encabezado del documento mediante configuración YAML.
 
-**En migración**
-- Generar calificaciones en formato CSV. 
+En migración:
 
+- Cálculo y exportación de calificaciones.
+
+## Requisitos
+
+- Python `>=3.10`
+- `pip`
+
+Dependencias actualmente usadas por la app:
+
+- `hydra-core`
+- `omegaconf`
+- `pandas`
+- `pylatex`
+- `jinja2`
+- `python-dotenv`
 
 ## Instalación
-1. Requisitos previos:
-   - Python 3.8 o superior
-   - Git
-1. Configura un entorno virtual (opcional) e instala dependencias:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # En Windows usa `venv\Scripts\activate`
 
-   pip install hydra-core pylatex jinja2 python-dotenv
-   ```
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/delozath/core.learning.public.git
-   
-    ```
-1. Instalación local usando pip. Navega al directorio `apps/syllabus` e instala la aplicación en modo editable:
-   ```bash
-   cd apps
-   pip install -e syllabus
-   cd syllabus
-   ```
-1. Configura las variables de entorno. Crea un archivo `.env` en el directorio `apps/syllabus/` con las siguientes variables:
-   ```env
-   DB_PATH=/ruta/a/tu/carpeta/de/datos/
-   TEX_FILES_PATH=/ruta/a/tu/carpeta/de/archivos/tex/
-   ```
-
-## Estructura del Proyecto
-<details>
-<summary>Árbol del proyecto</summary>
+Clona el repositorio e instala la app en modo editable desde `apps/syllabus`:
 
 ```bash
-└── apps
-    └── syllabus
-        ├── files
-        │   ├── common.sty
-        │   ├── cursos.db
-        │   ├── lini-v1.png
-        │   ├── notas.csv
-        │   ├── temario.csv
-        │   ├── uam-izt-v6.png
-        │   └── uea_planeacion.sty
-        ├── pyproject.toml
-        ├── README.md
-        └── src
-            ├── syllabus
-            │   ├── conf
-            │   │   ├── config.yaml
-            │   │   ├── curso
-            │   │   │   └── symp.yaml
-            │   │   └── institution
-            │   │       └── uam.yaml
-            │   ├── core.py
-            │   ├── data
-            │   │   ├── _csv_driver.py
-            │   │   ├── loader.py
-            │   │   └── _sqlite_driver.py
-            │   ├── main.py
-            │   ├── outputs
-            │   ├── ports
-            │   │   ├── dbs.py
-            │   │   └── tasks.py
-            │   ├── tasks
-            │   │   └── uam
-            │   │       ├── __init__.py
-            │   │       ├── jinja_driver.py
-            │   │       ├── _syllabus.py
-            │   │       ├── templates
-            │   │       │   ├── uami_eventos.tex.j2
-            │   │       │   ├── uami_sesiones.tex.j2
-            │   │       │   └── uami_temario.tex.j2
-            │   │       └── trimestre.py
-            │   └── utils.py
-            └── 
+git clone https://github.com/delozath/core.learning.git
+cd core.learning.public/apps/syllabus
+pip install -e .
+pip install pandas pylatex jinja2 python-dotenv
 ```
-</details>
+
+## Variables de entorno
+
+Crea un archivo `.env` en `apps/syllabus/` con las rutas de trabajo:
+
+```env
+DB_PATH=/ruta/a/tu/carpeta/de/datos
+TEX_FILES_PATH=/ruta/a/tu/carpeta/de/salida_tex
+ROOT=/ruta/a/core.learning
+```
+
+Notas:
+
+- `DB_PATH` debe apuntar al directorio que contiene `cursos.db`, `temario.csv` y `notas.csv`.
+- `TEX_FILES_PATH` es el directorio donde se escribe el archivo `.tex` generado.
+- `ROOT` se mantiene como raíz del proyecto para configuraciones auxiliares.
+
+## Estructura relevante
+
+```text
+apps/syllabus/
+├── files/
+├── pyproject.toml
+├── README.md
+└── src/syllabus/
+    ├── conf/
+    │   ├── config.yaml
+    │   ├── curso/
+    │   │   └── symp.yaml
+    │   └── institution/
+    │       └── uam.yaml
+    ├── core.py
+    ├── data/
+    ├── ports/
+    ├── tasks/uam/
+    │   ├── _syllabus.py
+    │   ├── jinja_driver.py
+    │   ├── templates/
+    │   └── trimestre.py
+    └── main.py
+```
 
 ## Uso
-Ejecuta la aplicación desde CLI:
-   ```bash
-   >> apps/syllabus$ python -m syllabus.main institution=uam curso=symp task=syllabus +db_type='csv'
-   ```
-Las opciones institucion y curso hacen los mapeos correspondientes a los archivos de configuración YAML en `src/syllabus/conf/institution/` y `src/syllabus/conf/curso/`. El parámetro `db_type` selecciona la fuente de datos, ya sea `sqlite` o `csv`.
 
-En la carpeta files/ se encuentran los archivos de datos y estilos necesarios para la generación de los syllabus UAM-I de la UEA Secuenciadores y Microprocesadores.
+Ejemplo con fuente CSV:
+
+```bash
+python -m syllabus.main institution=uam curso=symp task=syllabus +db_type=csv
+```
+
+Ejemplo con fuente SQLite:
+
+```bash
+python -m syllabus.main institution=uam curso=symp task=syllabus +db_type=sqlite
+```
+
+La resolución de Hydra usa:
+
+- `institution=uam` para cargar `src/syllabus/conf/institution/uam.yaml`
+- `curso=symp` para cargar `src/syllabus/conf/curso/symp.yaml`
+- `+db_type={csv|sqlite}` para seleccionar el adaptador de datos
+
+La salida se publica como:
+
+```text
+${TEX_FILES_PATH}/Syllabus-symp-26-P.tex
+```
+
+## Configuración actual del curso `symp`
+
+La versión actual del curso está parametrizada para el trimestre `26-P`:
+
+- UEA: `Secuenciadores y Microprocesadores`
+- Clave: `2151024`
+- Grupo: `CH51`
+- Inicio: `2026-05-06`
+- Fin: `2026-07-29`
+
+Además, el bloque `calendario` define:
+
+- sesiones de teoría y laboratorio por día,
+- feriados,
+- fechas de examen.
+
+## Personalización
+
+La configuración global en `src/syllabus/conf/config.yaml` ahora permite ajustar sin tocar código:
+
+- `docente`
+- `email`
+- `cubiculo`
+- `latex.extra_packages`
+
+Esto alimenta directamente la sección de datos del profesor y la carga de paquetes LaTeX del documento generado.
+
+## Control de cambios
+
+Actualización trimestre `26-P`
+
+- Se automatizó la parametrización de `docente`, `email` y `cubiculo` desde `config.yaml`.
+- Se agregó una lista en `config.yaml` para personalizar la carga de paquetes LaTeX mediante `latex.extra_packages`.
+- Actualizaron las fechas, sesiones y eventos del calendario para ajustarse al trimestre `26-P`.
+- Se migró a un nuevo repositorio para mejorar la organización del proyecto.
