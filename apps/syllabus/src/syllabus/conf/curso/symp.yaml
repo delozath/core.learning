@@ -1,0 +1,87 @@
+information:
+  short_name: symp
+  name: Secuenciadores y Microprocesadores
+  clave: 2151024
+  trimestre: 26-I
+  aula_virtual: pass
+  grupo: CH51
+  tipo: Ingeniería Biomédica
+  doc_elab:
+    dia: lunes
+    dia_num: 19
+    mes: enero
+
+calendario:
+  uam_offset: 3 # Semanas de diferencia con el calendario nominal y el de la UAM
+  inicio: 2026.01.19
+  fin: 2026.04.15
+
+  sesiones: # Cada linea representa un dia de la semana, iniciando en lunes
+    - teoria:
+        name: Teoría
+        dias:
+          - AT107
+          - 0
+          - AT107
+          - 0
+          - AT107
+    - lab:
+        name: Laboratorio
+        dias:
+          - 0
+          - AT109
+          - 0
+          - 0
+          - 0
+  
+  eventos:
+    - feriado:
+        name: Días festivos
+        fechas:
+          - 2026.02.05
+          - 2026.03.04
+          - 2026.04.02
+          - 2026.04.03     
+    - examen:
+        name: Exámenes
+        fechas:
+          - 2026.02.09
+          - 2026.03.13
+          - 2026.04.06
+
+data:
+  sqlite: # temario, calificaciones, estudiantes, ponderaciones
+    source: ${oc.env:DB_PATH}/cursos.db
+    tables:
+      unidades: uam_symp_temario_unidades
+      temas: uam_symp_temario_temas
+      subtemas: uam_symp_temario_subtemas
+      estudiantes: uam_curso_current_students
+      eval_items: uam_curso_current_items
+      eval_items_eval: uam_curso_current_items_eval
+    
+    queries:
+      #TODO: Automatizar render de sqlite
+      temario: "SELECT
+            unidades.unidad as num_unidad,
+            temas.tema as num_tema,
+            subtemas.subtema as num_subtema,
+            unidades.descripcion as unidad_titulo,
+            temas.descripcion as tema_titulo,
+            subtemas.descripcion,
+            subtemas.cobertura
+        FROM ${...sqlite.tables.unidades} AS unidades
+        JOIN ${...sqlite.tables.temas}    AS temas ON unidades.unidad = temas.unidad
+        JOIN ${...sqlite.tables.subtemas} AS subtemas
+            ON temas.unidad = subtemas.unidad
+            AND temas.tema = subtemas.tema"
+    
+  csv:
+    source:
+      temario: ${oc.env:DB_PATH}/temario.csv
+      notas: ${oc.env:DB_PATH}/notas.csv
+    
+    queries:
+      temario: "temario"
+      
+
